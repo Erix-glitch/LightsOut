@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+.f1-lights {
+  display: flex;
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+}
+
+.back-board {
+  position: absolute;
+  left: 5px;
+  right: 5px;
+  top: 50%;
+  height: 5%;
+  background: #000;
+  transform: translateY(-50%);
+}
+
+.light-strip {
+  background: #000;
+  margin: 0 2px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 8px 0;
+}
+
+@media (min-width: 435px) {
+  .light-strip {
+    margin: 0 5px;
+  }
+}
+
+.light {
+  border-radius: 9999px;
+  background: #222;
+  margin: 10px;
+  width: 70px;
+  max-width: 80%;
+  aspect-ratio: 1 / 1;
+}
+
+.light-strip.on .light:nth-child(n + 3) {
+  background: red;
+}

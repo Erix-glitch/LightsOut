@@ -6,38 +6,52 @@
     <title>LightsOut</title>
     <link rel="stylesheet" href="index.css" />
   </head>
-  <body>
+  <body class="font-sans min-h-screen flex flex-col items-center justify-center gap-5 p-4">
     <div class="f1-lights">
-    <div class="back-board"></div>
-    <div class="light-strip">
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
+      <div class="back-board"></div>
+      <div class="light-strip">
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+      </div>
+      <div class="light-strip">
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+      </div>
+      <div class="light-strip">
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+      </div>
+      <div class="light-strip">
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+      </div>
+      <div class="light-strip">
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+        <div class="light" data-light></div>
+      </div>
     </div>
-    <div class="light-strip">
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
+
+    <div class="flex items-center gap-4">
+      <button
+        type="button"
+        data-start
+        class="rounded-full bg-red-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-red-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 active:scale-95 disabled:opacity-60"
+      >
+        Start
+      </button>
+      <span data-status aria-live="polite" class="text-sm text-gray-800">Ready</span>
     </div>
-    <div class="light-strip">
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-    </div>
-    <div class="light-strip">
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-    </div>
-    <div class="light-strip">
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-      <div class="light"></div>
-    </div>
+
+    <script type="module" src="/index.js"></script>
   </body>
 </html>
