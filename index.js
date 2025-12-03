@@ -5,6 +5,9 @@ const statusEl = document.querySelector("[data-status]");
 const MIN_LIGHTS_OUT_MS = 500;
 const MAX_LIGHTS_OUT_MS = 2000;
 const ON_PHASE_MS = strips.length * 1000; // each column lights every second
+const DAY_MS = 24 * 60 * 60 * 1000;
+const MINUTE_MS = 60 * 1000;
+let timeDeltaMs = 0; // adjustment applied to scheduled lights-out times (ms)
 
 const scheduleTimes = [
   { h: 8, m: 25 },
@@ -31,15 +34,17 @@ function resetLights() {
 }
 
 function formatTime(date) {
-  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+  return date.toLocaleTimeString([], { hour: "numeric", minute: "2-digit", second: "2-digit" });
 }
 
 function getNextTargetTime(now = new Date()) {
+  const deltaWithinMinute = timeDeltaMs % MINUTE_MS;
   const candidates = scheduleTimes.map(({ h, m }) => {
     const d = new Date(now);
     d.setHours(h, m, 0, 0);
-    if (d <= now) d.setDate(d.getDate() + 1);
-    return d;
+    const adjusted = new Date(d.getTime() + deltaWithinMinute);
+    if (adjusted <= now) adjusted.setTime(adjusted.getTime() + DAY_MS);
+    return adjusted;
   });
   return candidates.sort((a, b) => a - b)[0];
 }
@@ -110,5 +115,25 @@ function safeManualStart() {
 }
 
 resetLights();
-scheduleNextAutoRun();
+
+async function loadTimeDelta() {
+  try {
+    const res = await fetch("/timeDelta.txt", { cache: "no-cache" });
+    if (!res.ok) return;
+    const txt = (await res.text()).trim();
+    const parsed = Number(txt);
+    if (Number.isFinite(parsed)) {
+      timeDeltaMs = parsed;
+    }
+  } catch (err) {
+    console.warn("Could not load timeDelta.txt", err);
+  }
+}
+
+async function init() {
+  await loadTimeDelta();
+  scheduleNextAutoRun();
+}
+
+init();
 startButton?.addEventListener("click", safeManualStart);
