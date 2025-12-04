@@ -1,6 +1,8 @@
 const strips = Array.from(document.querySelectorAll(".light-strip"));
 const startButton = document.querySelector("[data-start]");
+const unmuteButton = document.querySelector("[data-unmute]");
 const statusEl = document.querySelector("[data-status]");
+const clockEl = document.querySelector("[data-clock]");
 
 const MIN_LIGHTS_OUT_MS = 200;
 const MAX_LIGHTS_OUT_MS = 3000;
@@ -8,6 +10,8 @@ const ON_PHASE_MS = strips.length * 1000; // each column lights every second
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
 let timeDeltaMs = 0; // adjustment applied to scheduled lights-out times (ms)
+const beepAudio = new Audio("/beep.ogg");
+beepAudio.preload = "auto";
 
 const scheduleTimes = [
   { h: 8, m: 25 },
@@ -31,6 +35,15 @@ const randomLightsOutDelay = (max = MAX_LIGHTS_OUT_MS) =>
 
 function resetLights() {
   strips.forEach((strip) => strip.classList.remove("on"));
+}
+
+function playBeep() {
+  try {
+    beepAudio.currentTime = 0;
+    beepAudio.play();
+  } catch (err) {
+    // ignore playback errors (e.g., autoplay restrictions)
+  }
 }
 
 function formatTime(date) {
@@ -77,21 +90,21 @@ async function runSequence({ lightsOutDelay = randomLightsOutDelay(), isAuto = f
   if (startButton) startButton.disabled = true;
 
   if (statusEl) {
-    statusEl.textContent = isAuto
-      ? `Auto sequence running (lights out at ${formatTime(targetTime || new Date())})`
-      : "Lights on...";
+    statusEl.textContent = "Lights on...";
   }
+  
+  [clockEl, statusEl, startButton].forEach((el) => el?.classList.add("hidden"));
 
   resetLights();
   for (const strip of strips) {
+    playBeep();
     strip.classList.add("on");
     await delay(1000);
   }
 
-  if (statusEl) statusEl.textContent = "Lights out...";
   await delay(lightsOutDelay);
   resetLights();
-
+  [clockEl, statusEl, startButton].forEach((el) => el?.classList.remove("hidden"));
   if (statusEl) statusEl.textContent = "Ready";
   if (startButton) startButton.disabled = false;
   isRunning = false;
@@ -110,7 +123,7 @@ function safeManualStart() {
     if (statusEl) statusEl.textContent = "Auto run is imminent; manual start blocked.";
     return;
   }
-
+  handleUnmute();
   runSequence();
 }
 
@@ -137,3 +150,30 @@ async function init() {
 
 init();
 startButton?.addEventListener("click", safeManualStart);
+
+function handleUnmute() {
+  unmuteButton?.remove();
+}
+
+unmuteButton?.addEventListener("click", handleUnmute);
+
+function formatClock(now) {
+  const hours = now.getHours();
+  const minutes = String(now.getMinutes()).padStart(2, "0");
+  const seconds = String(now.getSeconds()).padStart(2, "0");
+  const millis = String(now.getMilliseconds()).padStart(3, "0");
+  const h12 = ((hours + 11) % 12) + 1;
+  const period = hours >= 12 ? "PM" : "AM";
+  return `${h12}:${minutes}:${seconds}:${millis} ${period}`;
+}
+
+function startClock() {
+  if (!clockEl) return;
+  const tick = () => {
+    clockEl.textContent = formatClock(new Date());
+  };
+  tick();
+  setInterval(tick, 5);
+}
+
+startClock();
