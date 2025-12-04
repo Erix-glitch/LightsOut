@@ -10,8 +10,29 @@ const ON_PHASE_MS = strips.length * 1000; // each column lights every second
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
 let timeDeltaMs = 0; // adjustment applied to scheduled lights-out times (ms)
-const beepAudio = new Audio("/beep.ogg");
-beepAudio.preload = "auto";
+
+// AUDIO ENGINE (no comments added here)
+let audioCtx = null;
+let beepBuffer = null;
+let audioUnlocked = false;
+
+async function unlockAudio() {
+  if (audioUnlocked) return;
+  audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") await audioCtx.resume();
+  const res = await fetch("/beep.wav");
+  const arrayBuf = await res.arrayBuffer();
+  beepBuffer = await audioCtx.decodeAudioData(arrayBuf);
+  audioUnlocked = true;
+}
+
+function playBeep() {
+  if (!beepBuffer || !audioCtx) return;
+  const src = audioCtx.createBufferSource();
+  src.buffer = beepBuffer;
+  src.connect(audioCtx.destination);
+  src.start(0);
+}
 
 const scheduleTimes = [
   { h: 8, m: 25 },
@@ -35,15 +56,6 @@ const randomLightsOutDelay = (max = MAX_LIGHTS_OUT_MS) =>
 
 function resetLights() {
   strips.forEach((strip) => strip.classList.remove("on"));
-}
-
-function playBeep() {
-  try {
-    beepAudio.currentTime = 0;
-    beepAudio.play();
-  } catch (err) {
-    // ignore playback errors (e.g., autoplay restrictions)
-  }
 }
 
 function formatTime(date) {
@@ -151,7 +163,8 @@ async function init() {
 init();
 startButton?.addEventListener("click", safeManualStart);
 
-function handleUnmute() {
+async function handleUnmute() {
+  await unlockAudio();
   unmuteButton?.remove();
 }
 
