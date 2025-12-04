@@ -190,3 +190,9 @@ function startClock() {
 }
 
 startClock();
+// resume audio context after visibility change (ios!!)
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && audioCtx) {
+    audioCtx.resume();
+  }
+});
