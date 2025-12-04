@@ -2,8 +2,8 @@ const strips = Array.from(document.querySelectorAll(".light-strip"));
 const startButton = document.querySelector("[data-start]");
 const statusEl = document.querySelector("[data-status]");
 
-const MIN_LIGHTS_OUT_MS = 500;
-const MAX_LIGHTS_OUT_MS = 2000;
+const MIN_LIGHTS_OUT_MS = 200;
+const MAX_LIGHTS_OUT_MS = 3000;
 const ON_PHASE_MS = strips.length * 1000; // each column lights every second
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MINUTE_MS = 60 * 1000;
